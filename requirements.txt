@@ -1,0 +1,7 @@
+flask>=3.0
+pillow>=10.0
+spotipy==2.25.1
+transformers>=4.48.0
+torch>=2.5.1
+torchvision>=0.20.1
+requests>=2.32.0

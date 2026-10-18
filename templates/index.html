@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Moodtrack</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-mood="">
+  <header class="top">
+    <h1>Moodtrack</h1>
+    <p class="tagline">Show us your face. We'll pick the soundtrack.</p>
+  </header>
+
+  <main class="layout">
+    <!-- Step 1: camera -->
+    <section class="card camera-card">
+      <div class="step-label"><span>1</span> Capture</div>
+
+      <div class="viewport">
+        <video id="video" autoplay playsinline muted></video>
+        <img id="snapshot" alt="Captured frame" hidden>
+        <div id="countdown" class="countdown" hidden></div>
+        <div id="cameraOff" class="camera-off">
+          <p>Camera is off</p>
+          <button id="startBtn" class="btn primary">Enable camera</button>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="captureBtn" class="btn primary" disabled>Capture mood</button>
+        <button id="retakeBtn" class="btn ghost" hidden>Retake</button>
+      </div>
+
+      <details class="manual">
+        <summary>No camera? Pick a mood manually</summary>
+        <div class="chips">
+          {% for mood in moods %}
+          <button class="chip" data-mood="{{ mood }}">{{ mood }}</button>
+          {% endfor %}
+        </div>
+      </details>
+    </section>
+
+    <!-- Steps 2 + 3: mood and playlist -->
+    <section class="card result-card">
+      <div class="step-label"><span>2</span> Mood</div>
+      <div id="moodEmpty" class="empty">Your detected mood will appear here.</div>
+      <div id="moodResult" hidden>
+        <div class="mood-head">
+          <span id="moodEmoji" class="mood-emoji"></span>
+          <div>
+            <div id="moodName" class="mood-name"></div>
+            <div id="moodConfidence" class="mood-confidence"></div>
+          </div>
+        </div>
+        <ul id="scoreBars" class="score-bars"></ul>
+      </div>
+
+      <div class="step-label"><span>3</span> Playlist</div>
+      <div id="playlistEmpty" class="empty">5 tracks matched to your mood.</div>
+      <ol id="playlist" class="playlist" hidden></ol>
+      <button id="shuffleBtn" class="btn ghost" hidden>Shuffle again</button>
+
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <canvas id="canvas" hidden></canvas>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
