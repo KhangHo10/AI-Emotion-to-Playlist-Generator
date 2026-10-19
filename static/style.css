@@ -31,8 +31,9 @@ body {
   transition: background 0.6s;
 }
 
-.top { max-width: 1040px; margin: 0 auto; padding: 32px 0 20px; }
-.top h1 { margin: 0; font-size: 28px; letter-spacing: -0.02em; }
+/* Scoped to <header>: the score bars also use a .top class for the leading emotion. */
+header.top { max-width: 1040px; margin: 0 auto; padding: 32px 0 20px; }
+header.top h1 { margin: 0; font-size: 28px; letter-spacing: -0.02em; }
 .tagline { margin: 4px 0 0; color: var(--muted); }
 
 .layout {

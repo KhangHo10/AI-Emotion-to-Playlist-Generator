@@ -11,15 +11,17 @@ from functools import lru_cache
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-# Genres whose sound mirrors each emotion (sad -> sad music). Each request picks one at
-# random, so "Shuffle again" also rotates genres. Names must be Spotify genre strings.
+# Genres whose sound mirrors each emotion (sad -> sad music). Broad genres like "pop" mix
+# every mood, so these are narrow, mood-specific Spotify genres. Each request tries them in
+# random order, so "Shuffle again" also rotates genres. Names must be Spotify genre strings;
+# one Spotify doesn't recognise just returns nothing and the next is tried.
 MOOD_GENRES = {
-    "Happy 😄": ["pop", "dance pop", "funk", "disco"],
-    "Sad 😢": ["acoustic", "singer-songwriter", "blues", "emo"],
-    "Angry 😠": ["metal", "hard rock", "punk", "metalcore"],
-    "Surprised 😲": ["edm", "house", "electro", "drum and bass"],
-    "Fearful 😨": ["dark ambient", "soundtrack", "industrial", "trip hop"],
-    "Neutral 😐": ["lo-fi", "ambient", "chillhop", "jazz"],
+    "Happy 😄": ["dance pop", "disco", "motown", "funk", "bubblegum pop"],
+    "Sad 😢": ["sad rap", "slowcore", "sadcore", "emo", "melancholia"],
+    "Angry 😠": ["nu metal", "rap metal", "hardcore punk", "thrash metal", "metalcore"],
+    "Surprised 😲": ["big room", "electro house", "hyperpop", "drum and bass"],
+    "Fearful 😨": ["dark ambient", "darkwave", "witch house", "drone"],
+    "Neutral 😐": ["lo-fi beats", "chillhop", "chillwave", "ambient"],
 }
 
 # Keyword fallback, used only if a genre search returns nothing.
@@ -32,8 +34,11 @@ MOODS_QUERY_MAP = {
     "Neutral 😐": "chill lofi instrumental focus",
 }
 
-# Random search offset for variety. Kept modest so narrower genres still return results.
-MAX_SEARCH_OFFSET = 100
+# Each search reads one page from a random point within the top MAX_SEARCH_DEPTH results and
+# samples tracks from it, so "Shuffle again" gives a different set. Depth is kept small:
+# results are ranked by popularity, and deep results in niche genres fit the genre less well.
+SEARCH_PAGE_SIZE = 10  # Development Mode maximum for search
+MAX_SEARCH_DEPTH = 60
 
 
 class SpotifyNotLoggedIn(Exception):
@@ -79,23 +84,39 @@ def get_spotify_client() -> spotipy.Spotify:
 
 
 def _search_tracks(sp: spotipy.Spotify, query: str, limit: int) -> list[dict]:
-    """Track search at a random offset, falling back to the top hits if the offset overshoots."""
-    offset = random.randint(0, MAX_SEARCH_OFFSET)
-    tracks = sp.search(q=query, type="track", limit=limit, offset=offset)["tracks"]["items"]
-    if len(tracks) < limit and offset > 0:
-        tracks = sp.search(q=query, type="track", limit=limit)["tracks"]["items"]
-    return tracks
+    """Return `limit` tracks sampled from a random page of the query's top results."""
+    first = sp.search(q=query, type="track", limit=SEARCH_PAGE_SIZE)["tracks"]
+    items = first["items"]
+
+    # Pick the page from the real result count, so the offset never runs past the end.
+    depth = min(first["total"], MAX_SEARCH_DEPTH)
+    if depth > SEARCH_PAGE_SIZE:
+        offset = random.randint(0, depth - SEARCH_PAGE_SIZE)
+        if offset > 0:
+            # Spotify's total can overestimate; keep the first page if this one comes back empty.
+            items = sp.search(q=query, type="track", limit=SEARCH_PAGE_SIZE, offset=offset)["tracks"]["items"] or items
+
+    items = [t for t in items if t]  # search pages can contain null entries
+    return random.sample(items, k=min(limit, len(items)))
 
 
 def recommend_tracks(mood: str, limit: int = 5) -> list[dict]:
     """Search Spotify for tracks in a genre matching the mood. Does not create a playlist."""
     sp = get_spotify_client()
 
-    genre = random.choice(MOOD_GENRES.get(mood, ["pop"]))
-    tracks = _search_tracks(sp, f'genre:"{genre}"', limit)
+    genres = MOOD_GENRES.get(mood, ["pop"])
+    tracks = []
+    for genre in random.sample(genres, k=len(genres)):
+        tracks = _search_tracks(sp, f'genre:"{genre}"', limit)
+        if tracks:
+            print(f"[spotify] {mood}: genre {genre!r} -> {len(tracks)} tracks")
+            break
+        print(f"[spotify] {mood}: genre {genre!r} returned nothing, trying next")
     if not tracks:
-        # Unknown genre or genre filter unavailable: fall back to a keyword search.
-        tracks = _search_tracks(sp, MOODS_QUERY_MAP.get(mood, "pop hits"), limit)
+        # No genre matched or genre filter unavailable: fall back to a keyword search.
+        query = MOODS_QUERY_MAP.get(mood, "pop hits")
+        tracks = _search_tracks(sp, query, limit)
+        print(f"[spotify] {mood}: all genres empty, keyword fallback {query!r} -> {len(tracks)} tracks")
 
     return [
         {
