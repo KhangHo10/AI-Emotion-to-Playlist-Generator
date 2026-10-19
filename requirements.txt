@@ -4,6 +4,5 @@ spotipy==2.25.1
 transformers>=4.48.0
 torch>=2.5.1
 torchvision>=0.20.1
-requests>=2.32.0
 # 4.x still bundles the Haar face cascade used for cropping; 5.x dropped it.
 opencv-python-headless>=4.10,<5

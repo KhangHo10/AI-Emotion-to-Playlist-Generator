@@ -55,10 +55,7 @@ def detect_emotion():
     except Exception:
         return jsonify(error="Could not decode image"), 400
 
-    result = predict_emotion(image)
-    if result["detected"] is None:
-        return jsonify(error="The model returned no prediction. Try another photo."), 422
-    return jsonify(result)
+    return jsonify(predict_emotion(image))
 
 
 @app.post("/api/recommend")

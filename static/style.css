@@ -156,7 +156,6 @@ header.top h1 { margin: 0; font-size: 28px; letter-spacing: -0.02em; }
 .meta { min-width: 0; }
 .meta .title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .meta .artist { color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.actions { display: flex; gap: 6px; }
 .icon-btn {
   width: 32px; height: 32px; border-radius: 50%;
   border: 1px solid var(--line); background: transparent; color: var(--text);

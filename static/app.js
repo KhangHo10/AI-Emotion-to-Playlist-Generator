@@ -261,8 +261,6 @@ document.addEventListener("DOMContentLoaded", () => {
       artist.textContent = track.artist;
       meta.append(title, artist);
 
-      const actions = document.createElement("div");
-      actions.className = "actions";
       const link = document.createElement("a");
       link.className = "icon-btn";
       link.href = track.url;
@@ -270,9 +268,8 @@ document.addEventListener("DOMContentLoaded", () => {
       link.rel = "noopener";
       link.title = "Open in Spotify";
       link.textContent = "↗";
-      actions.appendChild(link);
 
-      li.append(art, meta, actions);
+      li.append(art, meta, link);
       playlist.appendChild(li);
     });
 
