@@ -3,7 +3,7 @@
 A web app that reads your facial expression through the webcam, detects your emotion with a pretrained vision model, and recommends 5 Spotify tracks that match how you feel. You can save them as a playlist.
 
 ```
-Webcam ─▶ Face crop (OpenCV) ─▶ Emotion model (ViT) ─▶ Mood ─▶ Spotify genre search ─▶ 5 tracks
+Webcam ─▶ Face crop (OpenCV) ─▶ Emotion model (ViT) ─▶ Mood ─▶ Spotify search ─▶ 5 tracks
 ```
 
 **Tech stack:** Python, Flask, Hugging Face `transformers` ([`trpakov/vit-face-expression`](https://huggingface.co/trpakov/vit-face-expression)), OpenCV, Spotify Web API (`spotipy`), plain HTML/CSS/JS.
@@ -37,23 +37,23 @@ Click **Enable camera**, then **Capture mood** and hold an expression during the
 
 ## Mood mapping
 
-| Emotion | Mood | Spotify genres |
+| Emotion | Mood | Spotify search query |
 |---|---|---|
-| happy | Happy 😄 | dance pop, disco, motown, funk, bubblegum pop |
-| sad | Sad 😢 | sad rap, slowcore, sadcore, emo, melancholia |
-| angry, disgust | Angry 😠 | nu metal, rap metal, hardcore punk, thrash metal, metalcore |
-| surprise | Surprised 😲 | big room, electro house, hyperpop, drum and bass |
-| fear | Fearful 😨 | dark ambient, darkwave, witch house, drone |
-| neutral | Neutral 😐 | lo-fi beats, chillhop, chillwave, ambient |
+| happy | Happy 😄 | feel good happy upbeat pop |
+| sad | Sad 😢 | sad heartbreak acoustic ballad |
+| angry, disgust | Angry 😠 | angry rage hard rock metal |
+| surprise | Surprised 😲 | euphoric hype dance electronic |
+| fear | Fearful 😨 | dark tense cinematic suspense |
+| neutral | Neutral 😐 | chill lofi instrumental focus |
 
-To change the music for a mood, edit `MOOD_GENRES` in `music_service.py`.
+To change the music for a mood, edit `MOODS_QUERY_MAP` in `music_service.py`. To search by Spotify genre instead, set `USE_GENRE_SEARCH = True` and edit `MOOD_GENRES`.
 
 ## Project structure
 
 ```
 app.py             Flask server and API routes
 emotion_model.py   Face cropping, emotion inference, emotion → mood mapping
-music_service.py   Spotify login, genre search, playlist creation
+music_service.py   Spotify login, track search, playlist creation
 templates/         Page layout
 static/            Frontend JS and CSS
 ```
@@ -66,4 +66,4 @@ static/            Frontend JS and CSS
 
 ## Limitations
 
-The model reads facial expressions, not inner feelings, so subtle expressions often come out as *Neutral*. Spotify assigns genres to artists rather than songs, so an occasional track may not fit the mood.
+The model reads facial expressions, not inner feelings, so subtle expressions often come out as *Neutral*. Spotify's search matches the query words against track, artist and album names, not how a song sounds, so an occasional track may not fit the mood.
