@@ -60,7 +60,11 @@
       <div class="step-label"><span>3</span> Playlist</div>
       <div id="playlistEmpty" class="empty">5 tracks matched to your mood.</div>
       <ol id="playlist" class="playlist" hidden></ol>
-      <button id="shuffleBtn" class="btn ghost" hidden>Shuffle again</button>
+      <div class="controls">
+        <button id="saveBtn" class="btn primary" hidden>Save to Spotify</button>
+        <button id="shuffleBtn" class="btn ghost" hidden>Shuffle again</button>
+      </div>
+      <a id="savedLink" class="saved-link" target="_blank" rel="noopener" hidden>Open your new playlist ↗</a>
 
       <div id="status" class="status" role="status" aria-live="polite"></div>
     </section>

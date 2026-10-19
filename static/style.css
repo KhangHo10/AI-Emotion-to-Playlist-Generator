@@ -8,13 +8,18 @@
   --radius: 16px;
 }
 
-/* Accent follows the detected mood */
+/* Accent follows the detected mood (slugs set by MOOD_THEME in app.js) */
 body[data-mood="happy"]     { --accent: #ffc94a; }
-body[data-mood="stressed"]  { --accent: #6fc3c9; }
-body[data-mood="focused"]   { --accent: #8f9bff; }
-body[data-mood="energetic"] { --accent: #ff6b5e; }
+body[data-mood="sad"]       { --accent: #6f9fe0; }
+body[data-mood="angry"]     { --accent: #ff5e5e; }
+body[data-mood="surprised"] { --accent: #ff8fd8; }
+body[data-mood="fearful"]   { --accent: #a57cff; }
+body[data-mood="neutral"]   { --accent: #9aa4b8; }
 
 * { box-sizing: border-box; }
+
+/* Make the `hidden` attribute win over any `display:` set below (e.g. .camera-off, .countdown). */
+[hidden] { display: none !important; }
 
 body {
   margin: 0;
@@ -160,3 +165,7 @@ body {
 
 .status { min-height: 1.5em; font-size: 13px; color: var(--muted); }
 .status.error { color: #ff7b7b; }
+.status.success { color: #6fdc8c; }
+
+.saved-link { color: var(--accent); font-weight: 600; text-decoration: none; }
+.saved-link:hover { text-decoration: underline; }
