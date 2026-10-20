@@ -46,7 +46,7 @@ Click **Enable camera**, then **Capture mood** and hold an expression during the
 | fear | Fearful 😨 | dark tense cinematic suspense |
 | neutral | Neutral 😐 | chill lofi instrumental focus |
 
-To change the music for a mood, edit `MOODS_QUERY_MAP` in `music_service.py`. To search by Spotify genre instead, set `USE_GENRE_SEARCH = True` and edit `MOOD_GENRES`.
+To change the music for a mood, edit `MOODS_QUERY_MAP` in `music_service.py`.
 
 ## Project structure
 

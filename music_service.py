@@ -22,21 +22,6 @@ MOODS_QUERY_MAP = {
     "Neutral 😐": "chill lofi instrumental focus",
 }
 
-# Optional alternative: search by mood-specific Spotify genres instead (genre:"slowcore"),
-# falling back to MOODS_QUERY_MAP if no genre returns results. Off by default.
-USE_GENRE_SEARCH = False
-
-# Used only when USE_GENRE_SEARCH is True. Each request tries a mood's genres in random
-# order; a genre Spotify doesn't recognise returns nothing and the next is tried.
-MOOD_GENRES = {
-    "Happy 😄": ["dance pop", "disco", "motown", "funk", "bubblegum pop"],
-    "Sad 😢": ["sad rap", "slowcore", "sadcore", "emo", "melancholia"],
-    "Angry 😠": ["nu metal", "rap metal", "hardcore punk", "thrash metal", "metalcore"],
-    "Surprised 😲": ["big room", "electro house", "hyperpop", "drum and bass"],
-    "Fearful 😨": ["dark ambient", "darkwave", "witch house", "drone"],
-    "Neutral 😐": ["lo-fi beats", "chillhop", "chillwave", "ambient"],
-}
-
 # Each search reads one page from a random point within the top MAX_SEARCH_DEPTH results and
 # samples tracks from it, so "Shuffle again" gives a different set. Depth is kept small:
 # results are ranked by relevance and popularity, and deep results fit the mood less well.
@@ -103,27 +88,13 @@ def _search_tracks(sp: spotipy.Spotify, query: str, limit: int) -> list[dict]:
     return random.sample(items, k=min(limit, len(items)))
 
 
-def _search_by_genre(sp: spotipy.Spotify, mood: str, limit: int) -> list[dict]:
-    """Try the mood's genres in random order; return the first non-empty result (or [])."""
-    genres = MOOD_GENRES.get(mood, ["pop"])
-    for genre in random.sample(genres, k=len(genres)):
-        tracks = _search_tracks(sp, f'genre:"{genre}"', limit)
-        if tracks:
-            print(f"[spotify] {mood}: genre {genre!r} -> {len(tracks)} tracks")
-            return tracks
-        print(f"[spotify] {mood}: genre {genre!r} returned nothing, trying next")
-    return []
-
-
 def recommend_tracks(mood: str, limit: int = 5) -> list[dict]:
     """Search Spotify for tracks matching the mood. Does not create a playlist."""
     sp = get_spotify_client()
 
-    tracks = _search_by_genre(sp, mood, limit) if USE_GENRE_SEARCH else []
-    if not tracks:
-        query = MOODS_QUERY_MAP.get(mood, "pop hits")
-        tracks = _search_tracks(sp, query, limit)
-        print(f"[spotify] {mood}: query {query!r} -> {len(tracks)} tracks")
+    query = MOODS_QUERY_MAP.get(mood, "pop hits")
+    tracks = _search_tracks(sp, query, limit)
+    print(f"[spotify] {mood}: query {query!r} -> {len(tracks)} tracks")
 
     return [
         {
@@ -140,10 +111,7 @@ def recommend_tracks(mood: str, limit: int = 5) -> list[dict]:
 def save_playlist(mood: str, track_uris: list[str]) -> dict:
     """Create a private playlist on the user's account with the given tracks."""
     sp = get_spotify_client()
-    if USE_GENRE_SEARCH:
-        source = "Genres: " + ", ".join(MOOD_GENRES.get(mood, ["pop"]))
-    else:
-        source = f"Search: '{MOODS_QUERY_MAP.get(mood, 'pop hits')}'"
+    source = f"Search: '{MOODS_QUERY_MAP.get(mood, 'pop hits')}'"
 
     playlist = sp._post(
         "me/playlists",
